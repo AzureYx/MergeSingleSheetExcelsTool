@@ -62,11 +62,16 @@ namespace ExcelMerger
                             sourceWorkbook = new XSSFWorkbook(sourceStream); // for .xlsx
                         }
 
-                        ISheet sourceSheet = sourceWorkbook.GetSheetAt(0); // Assuming each source file has only one sheet
-                        string sheetName = Path.GetFileNameWithoutExtension(file.Name);
+                        for (int i = 0; i < sourceWorkbook.NumberOfSheets; i++)
+                        {
+                            ISheet sourceSheet = sourceWorkbook.GetSheetAt(i);
+                            string sheetName = sourceWorkbook.NumberOfSheets > 1
+                                ? $"{Path.GetFileNameWithoutExtension(file.Name)}_{sourceSheet.SheetName}"
+                                : Path.GetFileNameWithoutExtension(file.Name);
 
-                        ISheet targetSheet = targetWorkbook.CreateSheet(sheetName);
-                        CopySheet(sourceSheet, targetSheet, targetWorkbook);
+                            ISheet targetSheet = targetWorkbook.CreateSheet(sheetName);
+                            CopySheet(sourceSheet, targetSheet, targetWorkbook);
+                        }
                     }
                 }
 
@@ -146,27 +151,6 @@ namespace ExcelMerger
                     targetCell.SetCellValue(sourceCell.StringCellValue);
                     break;
             }
-
-            // Copy cell style
-            //ICellStyle newCellStyle = targetWorkbook.CreateCellStyle();
-            //if (sourceCell.CellStyle != null)
-            //{
-            //    newCellStyle.CloneStyleFrom(sourceCell.CellStyle);
-
-            //    // Apply font style
-            //    IFont sourceFont = sourceCell.CellStyle.GetFont(sourceCell.Sheet.Workbook);
-            //    IFont targetFont = targetWorkbook.CreateFont();
-            //    targetFont.Boldweight = sourceFont.Boldweight;
-            //    targetFont.Color = sourceFont.Color;
-            //    targetFont.FontHeight = sourceFont.FontHeight;
-            //    targetFont.FontName = sourceFont.FontName;
-            //    targetFont.IsItalic = sourceFont.IsItalic;
-            //    targetFont.IsStrikeout = sourceFont.IsStrikeout;
-            //    targetFont.Underline = sourceFont.Underline;
-            //    newCellStyle.SetFont(targetFont);
-            //}
-
-            //targetCell.CellStyle = newCellStyle;
         }
     }
 }
